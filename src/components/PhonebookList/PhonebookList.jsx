@@ -1,33 +1,39 @@
-import PropTypes from 'prop-types';
-import PhoneItem  from './PhonebookItem';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getFilter } from '../../redux/selectors';
+import {deleteContact} from '../../redux/contactsSlice';
+import s from '../PhonebookList/PhonebookItem.module.css';
 
-export default function PhoneList({ contacts = [], deleteContact }) {
-    return (
-      <>
-        {contacts.map(({ id, name, number }) => {
-          return (
-            <PhoneItem
-            deleteContact={deleteContact}
-            key={id}
-            id={id}
-            name={name}
-            number={number}
-          />
-        );
-      })}
-    </>
+const filterContacts = (contacts, filter) => {
+  return contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
   );
 };
 
-PhoneList.propTypes = {
-    contacts: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.string.isRequired,
-            name: PropTypes.string.isRequired,
-            number: PropTypes.string.isRequired,
-            })
-            ).isRequired,
-            deleteContact: PropTypes.func.isRequired,
-          };
-      
+export default function PhoneList() {
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+  const filteredContacts = filterContacts(contacts, filter);
+  const dispatch = useDispatch();
+  
+
+    return (
+       <div className={s.item_list}>
+        {filteredContacts.map(({ id, name, number }) => (        
+          <li className={s.item_text}
+            key={id}>
+                {name}: {number}             
+            <button
+              className={s.item_btn}
+              onClick={() => dispatch(deleteContact(id))}
+              type="button"
+             >
+    Delete
+    </button>
+      </li>                  
+        ))}
+         </div>
+  );
+};
+
+
 
